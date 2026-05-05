@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title></title>
+  <link rel="stylesheet" href="{{url_for('static', filename='index.css')}}">
+</head>
+<body>
+    <nav id="navbar">
+        <ul>
+            <li><a href="/">Home</a></li>
+            <li><a href="/problems">Problems</a></li>
+        </ul>
+    </nav>
+
+    <table class="centre-align">
+        <caption>List of problems</h1>
+        <thead>
+            <td><p>Problem ID</p></td>
+            <td><p>Problem title</p></td>
+            <td><p>Pass rate</p></td>
+        </thead>
+        {% for problem in problems %}
+        <tr>
+            <td>
+                <a href="/problem/{{problem[0]}}">P{{problem[0]}}</a>
+            </td>
+            <td><p>{{problem[1]}}</p></td>
+            <td><p>0.00%</p></td>
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>

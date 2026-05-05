@@ -1,6 +1,6 @@
 CREATE TABLE User (
   user_id INTEGER UNIQUE NOT NULL,
-  name TEXT NOT NULL,
+  name TEXT UNIQUE NOT NULL,
   pw_hash TEXT NOT NULL,
   privilege_lvl INTEGER NOT NULL,
   PRIMARY KEY (user_id AUTOINCREMENT)
@@ -15,6 +15,7 @@ CREATE TABLE Category (
 CREATE TABLE Problem (
   id INTEGER UNIQUE NOT NULL,
   cat_id INTEGER NOT NULL,
+  title TEXT NOT NULL,
   "desc" TEXT,
   created_by INTEGER NOT NULL,
   PRIMARY KEY (id AUTOINCREMENT),

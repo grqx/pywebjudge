@@ -1,0 +1,36 @@
+#navbar {
+    background-color: #3a3a3a;
+    text-align: center;
+}
+
+#navbar ul {
+    display: flex;
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+}
+
+#navbar ul > li {
+    display: inherit;
+    flex: 1;
+}
+
+#navbar a {
+    flex: inherit;
+    padding: 8px;
+    color: #ffffff;
+    text-decoration: none;
+}
+
+#navbar a:visited {
+    color: #ffffff;
+}
+
+#navbar a:hover {
+    background-color: #111111;
+}
+
+.centre-align {
+    margin: 0px auto;
+}
