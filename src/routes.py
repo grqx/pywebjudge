@@ -2,7 +2,7 @@ from typing import Callable
 from flask import Flask, render_template
 from flask.typing import RouteCallable
 
-from .db import get_problems, problem_desc, teardown
+from .db import get_problems, problem_info, public_testcases, teardown
 
 registry: list[tuple[RouteCallable, str]] = []
 
@@ -19,7 +19,8 @@ def _problems():
 
 @deferred_route('/problem/<int:p_id>')
 def _problem(p_id: int):
-    return problem_desc(p_id)
+    # TODO: shared cursor
+    return render_template('problem.html', problem=problem_info(p_id), testcases=public_testcases(p_id))
 
 def setup_flask_routes(fapp: Flask):
     for func, rule in registry:

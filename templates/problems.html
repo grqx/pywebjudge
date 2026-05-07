@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title></title>
+  <title>Problems - PWJ</title>
   <link rel="stylesheet" href="{{url_for('static', filename='index.css')}}">
 </head>
 <body>
@@ -23,9 +23,9 @@
         {% for problem in problems %}
         <tr>
             <td>
-                <a href="/problem/{{problem[0]}}">P{{problem[0]}}</a>
+                <a href="/problem/{{problem['id']}}">P{{problem['id']}}</a>
             </td>
-            <td><p>{{problem[1]}}</p></td>
+            <td><p>{{problem['title']}}</p></td>
             <td><p>0.00%</p></td>
         </tr>
         {% endfor %}

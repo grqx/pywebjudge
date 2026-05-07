@@ -34,3 +34,14 @@
 .centre-align {
     margin: 0px auto;
 }
+
+.code-area {
+    display: inline-block;
+    border: solid 1px #000;
+    min-height: 200px;
+    width: 100%;
+}
+
+.hidden {
+    display: none;
+}
