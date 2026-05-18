@@ -35,13 +35,30 @@
     margin: 0px auto;
 }
 
+.code-large {
+    min-height: 200px;
+}
+.code-small {
+    min-height: 50px;
+}
 .code-area {
     display: inline-block;
     border: solid 1px #000;
-    min-height: 200px;
+    overflow-x: scroll;
     width: 100%;
 }
 
 .hidden {
     display: none;
+}
+
+.grid2 {
+    width: 100%;
+    display: grid;
+    grid-template-columns: auto auto;
+    gap: 3px;
+}
+
+.grid2 > .grid-wide {
+    grid-column: 1 / -1;
 }

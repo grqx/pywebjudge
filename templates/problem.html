@@ -20,10 +20,11 @@
 
     <noscript><p>This page currently requires JavaScript and WebAssembly execution to function.</p></noscript>
 
-    <div>
-        <button id="run" disabled>Pyodide is still loading</button>
-        <code id="user-code" class="code-area" contentEditable="plaintext-only" spellcheck="false"></code>
-        <code id="output"></code>
+    <button id="run" disabled="true">Pyodide is still loading</button>
+    <div class="grid2">
+        <code id="user-code" class="grid-wide code-area code-large" contentEditable="plaintext-only" spellcheck="false"></code>
+        <code id="eval-stdin" class="code-area code-small" contentEditable="plaintext-only" spellcheck="false"></code>
+        <code id="output" class="code-area code-small"></code>
     </div>
 
     <div>
