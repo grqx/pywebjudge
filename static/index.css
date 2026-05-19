@@ -12,15 +12,14 @@
 }
 
 #navbar ul > li {
-    display: inherit;
     flex: 1;
 }
 
-#navbar a {
-    flex: inherit;
-    padding: 8px;
+#navbar ul > li > a {
     color: #ffffff;
     text-decoration: none;
+    display: block;
+    padding: 8px;
 }
 
 #navbar a:visited {
@@ -33,6 +32,10 @@
 
 .centre-align {
     margin: 0px auto;
+}
+
+.centre-align-v {
+    margin: auto 0px;
 }
 
 .code-large {
@@ -59,4 +62,15 @@
 
 .grid2 > .grid-wide {
     grid-column: 1 / -1;
+}
+
+.gflex {
+    display: flex;
+    gap: 12px;
+}
+
+.grid250px {
+    /* TODO: test; --var? */
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
 }
