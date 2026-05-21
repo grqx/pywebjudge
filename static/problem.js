@@ -3,6 +3,16 @@ document.addEventListener('DOMContentLoaded', async e=>{
     const btn = document.getElementById('run');
     const evalStdin = document.getElementById('eval-stdin');
     const output = document.getElementById('output');
+    const cbtns = document.querySelectorAll('.testcase button.cbtn');
+
+    function cBtnOnClick() {
+        const tcIn = this.closest('.testcase').querySelector('.tc-in')
+        evalStdin.innerText = tcIn.innerText;
+    }
+
+    for (const cbtn of cbtns)
+        cbtn.onclick = cBtnOnClick;
+
     const pyodide = await loadPyodide({});
     function setPyIO(py, o) {
         py.setStdin({stdin: ()=>o[0]()});

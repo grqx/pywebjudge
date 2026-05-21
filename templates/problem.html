@@ -29,15 +29,15 @@
 
     <div>
         {% for testcase in testcases %}
-        <div>
+        <div class="testcase">
             <h3>Testcase id {{testcase['test_no']}}</h3>
             <div class="gflex">
                 <p>Sample Input</p>
-                <button class="centre-align-v">kopi</button>
+                <button class="centre-align-v cbtn">Copy to input box</button>
             </div>
-            <code>{{testcase['in']}}</code>
+            <pre><code class="tc-in">{{testcase['in']}}</code></pre>
             <p>Sample Output</p>
-            <code>{{testcase['out']}}</code>
+            <pre><code class="tc-out">{{testcase['out']}}</code></pre>
         </div>
         {% endfor %}
     </div>
