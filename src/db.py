@@ -37,3 +37,10 @@ def public_testcases(p_id: int, cur: sqlite3.Cursor | None = None) -> list[sqlit
             cur = global_db().cursor()
             sk.callback(cur.close)
         return cur.execute(r'SELECT test_no, "in", "out", "note" FROM Testcase WHERE problem_id = ? AND type = 0', (p_id, )).fetchall()
+
+def creds_of(u_name: str, cur: sqlite3.Cursor | None = None) -> sqlite3.Row | None:
+    with contextlib.ExitStack() as sk:
+        if cur is None:
+            cur = global_db().cursor()
+            sk.callback(cur.close)
+        return cur.execute(r'SELECT pw_hash, privilege_lvl FROM User WHERE name = ?', (u_name, )).fetchone()
