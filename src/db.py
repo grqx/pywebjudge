@@ -44,4 +44,4 @@ def public_testcases(p_id: int, cur: OptCursor = None) -> list[sqlite3.Row]:
 
 def creds_of(u_name: str, cur: OptCursor = None) -> sqlite3.Row | None:
     with get_cursor(cur) as c:
-        return c.execute(r'SELECT pw_hash, privilege_lvl FROM User WHERE name = ?', (u_name, )).fetchone()
+        return c.execute(r'SELECT user_id, pw_hash, privilege_lvl FROM User WHERE name = ?', (u_name, )).fetchone()
