@@ -31,6 +31,7 @@ document.addEventListener('DOMContentLoaded', async e=>{
                 alert('stderr is ignored in judge environment. Please use stdout instead!'); 
             }
         },
+        3: function () {},
         input: null,
         output: null,
         warned: false,
@@ -48,6 +49,7 @@ document.addEventListener('DOMContentLoaded', async e=>{
         3: function () {
             if (this.checkOut === null) return;
             // ...
+            this.success = this.checkOut == output;
         },
         input: [],
         output: [],
@@ -60,7 +62,7 @@ document.addEventListener('DOMContentLoaded', async e=>{
     btn.removeAttribute('disabled');
     btn.innerText = 'Run';
     btn.onclick = ()=>{
-        currentIO.input = evalStdin.innerText.split(/\r?\n/);
+        currentIO.input = evalStdin.innerText ? evalStdin.innerText.split(/\r?\n/) : [];
         output.innerText = '';
         pyodide.runPython(userCode.innerText);
         currentIO[3]();

@@ -6,7 +6,7 @@ from typing import Callable, Any
 from flask import Flask, Response, redirect, render_template, request, session
 from flask.typing import RouteCallable
 
-from .db import creds_of, get_problems, problem_info, public_testcases, teardown
+from .db import creds_of, get_cursor, get_problems, problem_info, public_testcases, teardown
 
 registry: list[tuple[RouteCallable, str, dict[str, Any]]] = []
 
@@ -19,7 +19,7 @@ def require_login(cb: RouteCallable) -> RouteCallable:
         if (u := session.get('u')) is not None:
             return cb(*a, user=u)
         session['redirect'] = request.full_path
-        return redirect('/login')
+        return redirect('/login?r=1')
 
     return wrapped
 
@@ -33,8 +33,11 @@ def _problems():
 
 @deferred_route('/problem/<int:p_id>')
 def _problem(p_id: int):
-    # TODO: shared cursor
-    return render_template('problem.html', problem=problem_info(p_id), testcases=public_testcases(p_id))
+    with get_cursor() as c:
+        return render_template(
+            'problem.html',
+            problem=problem_info(p_id, c),
+            testcases=public_testcases(p_id, c))
 
 @deferred_route('/login', methods=('GET', 'POST'))
 def _login():
@@ -50,18 +53,13 @@ def _login():
             return 'INCORRECT LOGIN'
 
     if 'u' in session:
-        return redirect(session.pop('redirect', '/me'))
+        return redirect(session.pop('redirect', '/me') if request.args.get('r') else '/me')
     return render_template('login.html')
 
 @deferred_route('/me')
 @require_login
 def _me(*, user: int):
     return str(user)
-
-@deferred_route('/test')
-@require_login
-def _test(*, user: int):
-    return '1'
 
 @deferred_route('/logout')
 def _logout():

@@ -20,7 +20,7 @@ def teardown():
 OptCursor = sqlite3.Cursor | None
 
 @contextlib.contextmanager
-def get_cursor(cur: OptCursor):
+def get_cursor(cur: OptCursor = None):
     if cur is not None:
         yield cur
         return
