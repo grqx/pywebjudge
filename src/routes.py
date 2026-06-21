@@ -3,7 +3,7 @@ import functools
 import secrets
 
 from typing import Callable, Any
-from flask import Flask, Response, redirect, render_template, request, session
+from flask import Flask, redirect, render_template, request, session
 from flask.typing import RouteCallable
 
 from .db import creds_of, get_cursor, get_problems, problem_info, public_testcases, teardown
@@ -25,11 +25,11 @@ def require_login(cb: RouteCallable) -> RouteCallable:
 
 @deferred_route('/')
 def _root():
-    return render_template('index.html')
+    return render_template('index.html', u=session.get('u'))
 
 @deferred_route('/problems')
 def _problems():
-    return render_template('problems.html', problems=get_problems())
+    return render_template('problems.html', problems=get_problems(), u=session.get('u'))
 
 @deferred_route('/problem/<int:p_id>')
 def _problem(p_id: int):
@@ -37,7 +37,8 @@ def _problem(p_id: int):
         return render_template(
             'problem.html',
             problem=problem_info(p_id, c),
-            testcases=public_testcases(p_id, c))
+            testcases=public_testcases(p_id, c),
+            u=session.get('u'))
 
 @deferred_route('/login', methods=('GET', 'POST'))
 def _login():
@@ -65,7 +66,7 @@ def _me(*, user: int):
 def _logout():
     if 'u' in session:
         del session['u']
-    return Response(status=204)
+    return redirect('/')
 
 def setup_flask(fapp: Flask):
     fapp.secret_key = secrets.token_bytes(32)
