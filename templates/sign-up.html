@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Sign Up - PWJ</title>
+  <link rel="stylesheet" href="{{url_for('static', filename='index.css')}}">
+</head>
+<body>
+    <nav id="navbar">
+        <ul>
+            <li><a href="/">Home</a></li>
+            <li><a href="/problems">Problems</a></li>
+            <li><a href="/me">My account</a></li>
+        </ul>
+    </nav>
+
+
+    <form class="gflex flex-col margin10px" name="sign-up" action="/sign-up" method="post">
+        <label for="user">User name</label>
+        <input id="user" name="u" type="text" required></input>
+        <label for="passwd">Password</label>
+        <input id="passwd" name="pw" type="password" required></input>
+        <label for="passwd-a">Password Confirmation</label>
+        <input id="passwd-a" name="pwa" type="password" required></input>
+        <button type="submit">Sign up</button>
+    </form>
+</body>
+</html>
