@@ -29,6 +29,16 @@
     </div>
 
     <div>
+        <select id="judge-tc">
+            <option selected>Disabled</option>
+            <option>ALL testcases</option>
+            {% for testcase in testcases %}
+            <option>Testcase {{testcase['test_no']}}</option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <div>
         {% for testcase in testcases %}
         <div class="testcase">
             <h3>Testcase id {{testcase['test_no']}}</h3>

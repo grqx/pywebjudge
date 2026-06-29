@@ -1,3 +1,4 @@
+# TODO: flash error
 import bcrypt
 import functools
 import secrets
@@ -91,6 +92,7 @@ def _logout():
 
 def setup_flask(fapp: Flask):
     fapp.secret_key = secrets.token_bytes(32)
+    fapp.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
     for func, rule, opt in registry:
         fapp.add_url_rule(rule, view_func=func, **opt)
     fapp.teardown_request(lambda _: teardown())
