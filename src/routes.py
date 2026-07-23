@@ -1,4 +1,4 @@
-# TODO: flash error
+# TODO: flask's builtin flash error
 import bcrypt
 import functools
 import secrets
@@ -7,7 +7,7 @@ from typing import Callable, Any, Concatenate, ParamSpec
 from flask import Flask, redirect, render_template, request, session
 from flask.typing import ResponseReturnValue, RouteCallable
 
-from .db import creds_of, get_cursor, get_problems, problem_info, public_testcases, register, teardown
+from .db import creds_of, get_cursor, get_problems, get_subs, problem_info, public_testcases, register, submit, teardown
 
 P = ParamSpec('P')
 registry: list[tuple[RouteCallable, str, dict[str, Any]]] = []
@@ -82,7 +82,15 @@ def _sign_up():
 @deferred_route('/me')
 @require_login
 def _me(user: int):
-    return str(user)
+    return str(user) + str(list(map(list, get_subs(user))))
+
+@deferred_route('/submit', methods=('POST', ))
+@require_login
+def _submit(user: int):
+    passed = int(request.json['pass'])
+    p_id = int(request.json['problem'])
+    submit(user, p_id, 1 if passed else 0)
+    return ''
 
 @deferred_route('/logout')
 def _logout():

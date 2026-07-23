@@ -61,3 +61,12 @@ def creds_of(c: sqlite3.Cursor, u_name: str) -> sqlite3.Row | None:
 def register(c: sqlite3.Cursor, u_name: str, pw_hash: str) -> None:
     c.execute(r'INSERT INTO User (name, pw_hash, privilege_lvl) VALUES (?, ?, 1)', (u_name, pw_hash))
     c.connection.commit()
+
+@opt_cursor
+def submit(c: sqlite3.Cursor, u_id: int, p_id: int, result: int) -> None:
+    c.execute(r'INSERT INTO Submission (user_id, problem_id, result) VALUES (?, ?, ?)', (u_id, p_id, result))
+    c.connection.commit()
+
+@opt_cursor
+def get_subs(c: sqlite3.Cursor, u_id: int) -> list[sqlite3.Row]:
+    return c.execute(r'SELECT problem_id, result FROM Submission WHERE user_id = ?', (u_id, )).fetchall()

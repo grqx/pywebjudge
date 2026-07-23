@@ -1,5 +1,4 @@
-// TODO: redirect py error
-document.addEventListener('DOMContentLoaded', async e=>{
+document.addEventListener('DOMContentLoaded', async ()=>{
     const userCode = document.getElementById('user-code');
     const btn = document.getElementById('run');
     const evalStdin = document.getElementById('eval-stdin');
@@ -48,10 +47,23 @@ document.addEventListener('DOMContentLoaded', async e=>{
 
     const pyodide = await loadPyodide({});
 
-    function setPyIO(py, o) {
-        py.setStdin({stdin: ()=>o[0]()});
-        py.setStdout({batched: l=>o[1](l)});
-        py.setStderr({batched: l=>o[2](l)});
+    function setPyIO(o) {
+        pyodide.setStdin({stdin: ()=>o[0]()});
+        pyodide.setStdout({batched: l=>o[1](l)});
+        pyodide.setStderr({batched: l=>o[2](l)});
+    }
+    function wrappedRun() {
+        try {
+            pyodide.runPython(userCode.innerText);
+            return true;
+        } catch (e) {
+            if (e instanceof pyodide.ffi.PythonError) {
+                output.innerText += e.message + '\n';
+                alert('Uncaught python exception!');
+                return false;
+            }
+            else throw e;
+        }
     }
 
     function judge(tcId) {
@@ -60,26 +72,41 @@ document.addEventListener('DOMContentLoaded', async e=>{
         const tcOut = tc.querySelector('.tc-out')?.innerText;
         judgeIO.input = tcIn ? tcIn.split(/\r?\n/) : [];
         judgeIO.output = [];
+        output.innerText = '';  // for error
         judgeIO.checkOut = tcOut ? tcOut.split(/\r?\n/) : [];
-        pyodide.runPython(userCode.innerText);
+        if (!wrappedRun()) return false;
         return judgeIO.chk();
     }
-    btn.onclick = ()=>{
+    btn.onclick = async ()=>{
         const idx = judgeTc.selectedIndex;
         switch (idx) {
         case 0:
-            setPyIO(pyodide, evalIO);
+            setPyIO(evalIO);
             evalIO.input = evalStdin.innerText ? evalStdin.innerText.split(/\r?\n/) : [];
             output.innerText = '';
-            pyodide.runPython(userCode.innerText);
+            wrappedRun();
             break;
         case 1:
-            setPyIO(pyodide, judgeIO);
-            for (let tcId = 0; tcId < cbtns.length; ++tcId)
-                alert(judge(tcId) ? 'pass' : 'fail');
+            setPyIO(judgeIO);
+            let pass = true;
+            for (let tcId = 0; tcId < cbtns.length; ++tcId) {
+                if (!judge(tcId)) {
+                    pass = false;
+                    break;
+                }
+            }
+            alert(pass ? 'pass' : 'fail');
+            await fetch('/submit', {
+                method: 'POST',
+                body: JSON.stringify({
+                    pass,
+                    problem: parseInt((x=>x.slice(x.lastIndexOf('/') + 1))(window.location.pathname)),
+                }),
+                headers: { 'content-type': 'application/json' },
+            });
             break;
         default:
-            setPyIO(pyodide, judgeIO);
+            setPyIO(judgeIO);
             alert(judge(idx - 2) ? 'pass' : 'fail');
             break;
         }

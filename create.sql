@@ -48,3 +48,12 @@ CREATE TABLE Problems2tags (
   FOREIGN KEY (problem_id) REFERENCES Problem(id)
 );
 
+CREATE TABLE Submission (
+  user_id INTEGER NOT NULL,
+  problem_id INTEGER NOT NULL,
+  sub_id INTEGER UNIQUE NOT NULL,
+  result INTEGER NOT NULL,
+  PRIMARY KEY (sub_id AUTOINCREMENT),
+  FOREIGN KEY (user_id) REFERENCES User(user_id),
+  FOREIGN KEY (problem_id) REFERENCES Problem(id)
+);
