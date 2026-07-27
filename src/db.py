@@ -70,3 +70,11 @@ def submit(c: sqlite3.Cursor, u_id: int, p_id: int, result: int) -> None:
 @opt_cursor
 def get_subs(c: sqlite3.Cursor, u_id: int) -> list[sqlite3.Row]:
     return c.execute(r'SELECT problem_id, result FROM Submission WHERE user_id = ?', (u_id, )).fetchall()
+
+@opt_cursor
+def get_results(c: sqlite3.Cursor, p_id: int) -> list[sqlite3.Row]:
+    return c.execute(r'SELECT result FROM Submission WHERE problem_id = ?', (p_id, )).fetchall()
+
+@opt_cursor
+def get_userinfo(c: sqlite3.Cursor, u_id: int) -> sqlite3.Row:
+    return c.execute(r'SELECT name FROM User WHERE user_id = ?', (u_id, )).fetchone()

@@ -7,7 +7,19 @@ from typing import Callable, Any, Concatenate, ParamSpec
 from flask import Flask, redirect, render_template, request, session
 from flask.typing import ResponseReturnValue, RouteCallable
 
-from .db import creds_of, get_cursor, get_problems, get_subs, problem_info, public_testcases, register, submit, teardown
+from .db import (
+    creds_of,
+    get_cursor,
+    get_problems,
+    get_results,
+    get_subs,
+    get_userinfo,
+    problem_info,
+    public_testcases,
+    register,
+    submit,
+    teardown,
+)
 
 P = ParamSpec('P')
 registry: list[tuple[RouteCallable, str, dict[str, Any]]] = []
@@ -25,13 +37,26 @@ def require_login(cb: Callable[Concatenate[int, P], ResponseReturnValue]) -> Cal
 
     return wrapped
 
+def passrate(res):
+    passes = sum(x['result'] for x in res)
+    submissions = len(res)
+    try:
+        return f'{passes / submissions * 100:.2f}%'
+    except ZeroDivisionError:
+        return 'N/A'
+
 @deferred_route('/')
 def _root():
     return render_template('index.html', u=session.get('u'))
 
 @deferred_route('/problems')
 def _problems():
-    return render_template('problems.html', problems=get_problems(), u=session.get('u'))
+    with get_cursor() as c:
+        problems = get_problems(cur=c)
+        return render_template('problems.html', problems=({
+            **problem,
+            '__passrate': passrate(get_results(problem['id'], cur=c)),
+        } for problem in problems), u=session.get('u'))
 
 @deferred_route('/problem/<int:p_id>')
 def _problem(p_id: int):
@@ -82,7 +107,14 @@ def _sign_up():
 @deferred_route('/me')
 @require_login
 def _me(user: int):
-    return str(user) + str(list(map(list, get_subs(user))))
+    with get_cursor() as c:
+        subs = get_subs(user, cur=c)
+        return render_template(
+            'me.html',
+            info=get_userinfo(user, cur=c),
+            passrate=passrate(subs),
+            attempted=set(x['problem_id'] for x in subs),
+            u=user)
 
 @deferred_route('/submit', methods=('POST', ))
 @require_login

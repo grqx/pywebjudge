@@ -27,7 +27,7 @@
                 <a href="/problem/{{problem['id']}}">P{{problem['id']}}</a>
             </td>
             <td><p>{{problem['title']}}</p></td>
-            <td><p>0.00%</p></td>
+            <td><p>{{problem['__passrate']}}</p></td>
         </tr>
         {% endfor %}
     </table>
