@@ -45,7 +45,7 @@ document.addEventListener('DOMContentLoaded', async ()=>{
         checkOut: null,
     };
 
-    const pyodide = await loadPyodide({});
+    const pyodide = await loadPyodide({ jsglobals: {} });
 
     function setPyIO(o) {
         pyodide.setStdin({stdin: ()=>o[0]()});

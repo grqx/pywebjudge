@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Home - PWJ</title>
+  <link rel="stylesheet" href="{{url_for('static', filename='index.css')}}">
+</head>
+<body>
+    <nav id="navbar">
+        <ul>
+            <li><a href="/">Home</a></li>
+            <li><a href="/problems">Problems</a></li>
+            <li><a href="/me">My account</a></li>
+        </ul>
+    </nav>
+
+    <div>
+        <p>User Name: {{info['name']}}</p>
+        <p>User Id: {{u}}</p>
+        <p>Pass rate: {{passrate}}</p>
+        <p>Attempted problems: </p>
+        {% for p_id in attempted %}
+        <a href="/problem/{{p_id}}">P{{p_id}}</a>
+        {% endfor %}
+    </div>
+</body>
+</html>

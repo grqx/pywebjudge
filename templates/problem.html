@@ -31,9 +31,7 @@
     <div>
         <select id="judge-tc">
             <option selected>Use input box</option>
-            {% if u is not none() %}
-            <option>Submit</option>
-            {% endif %}
+            <option {{'disabled' if u is none()}}>Submit</option>
             {% for testcase in testcases %}
             <option>Testcase {{testcase['test_no']}}</option>
             {% endfor %}
