@@ -4,7 +4,13 @@ import functools
 import secrets
 
 from typing import Callable, Any, Concatenate, ParamSpec
-from flask import Flask, redirect, render_template, request, session
+from flask import (
+    Flask,
+    redirect,
+    render_template,
+    request,
+    session,
+)
 from flask.typing import ResponseReturnValue, RouteCallable
 
 from .db import (
