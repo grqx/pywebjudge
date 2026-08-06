@@ -83,3 +83,21 @@
 .margin10px {
     margin: 8px auto;
 }
+
+
+table.pretty-table {
+    border-collapse: collapse;
+    border: solid #363636;
+}
+
+table.pretty-table thead tr{
+    border-bottom: solid royalblue;
+}
+
+table.pretty-table tr:nth-child(even) {
+    background-color: #ebedee;
+}
+
+table.pretty-table tr:nth-child(odd) {
+    background-color: #fff;
+}

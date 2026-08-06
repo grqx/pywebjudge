@@ -43,7 +43,6 @@ def get_cursor(cur: OptCursor = None):
         cur.close()
 
 class Decorated(Protocol[P, Tc]):
-    @staticmethod
     def __call__(*a: P.args, **k: P.kwargs) -> Tc: ...
     mode: Literal['fetchall'] | Literal['fetchone'] | None
 
