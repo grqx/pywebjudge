@@ -14,14 +14,16 @@
         </ul>
     </nav>
 
-    <div>
+    <div class="vcafc">
         <p>User Name: {{info['name']}}</p>
         <p>User Id: {{u}}</p>
         <p>Pass rate: {{passrate}}</p>
         <p>Attempted problems: </p>
+        <div>
         {% for p_id in attempted %}
         <a href="/problem/{{p_id}}">P{{p_id}}</a>
         {% endfor %}
+        </div>
     </div>
 </body>
 </html>

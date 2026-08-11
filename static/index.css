@@ -1,5 +1,10 @@
+html {
+    color-scheme: light dark;
+    font-family: "Segoe UI",sans-serif;
+}
+
 #navbar {
-    background-color: #3a3a3a;
+    background-color: #3a3a3a80;
     text-align: center;
 }
 
@@ -16,22 +21,18 @@
 }
 
 #navbar ul > li > a {
-    color: #ffffff;
+    color: #ffffff80;
     text-decoration: none;
     display: block;
     padding: 8px;
 }
 
 #navbar a:visited {
-    color: #ffffff;
+    color: #ffffff80;
 }
 
 #navbar a:hover {
-    background-color: #111111;
-}
-
-.centre-align {
-    margin: 0px auto;
+    background-color: #11111180;
 }
 
 .centre-align-v {
@@ -45,7 +46,7 @@
     min-height: 50px;
 }
 .code-area {
-    border: solid 1px #000;
+    border: solid 1px #80808080;
     overflow-x: auto;
     white-space: pre;
 }
@@ -90,14 +91,28 @@ table.pretty-table {
     border: solid #363636;
 }
 
-table.pretty-table thead tr{
+table.pretty-table thead tr {
     border-bottom: solid royalblue;
 }
 
 table.pretty-table tr:nth-child(even) {
-    background-color: #ebedee;
+    background-color: #80808080;
 }
 
+/* not strictly required, included for consistency */
 table.pretty-table tr:nth-child(odd) {
-    background-color: #fff;
+    background-color: inherit;
 }
+
+table.pretty-table td, table.pretty-table th {
+    padding: 5px 10px;
+    text-align: center;
+    vertical-align: middle;
+}
+
+table.pretty-table caption {
+    padding: 5% 0;
+}
+
+/* vertically central-aligned container */
+.vcafc { display: flex; flex-direction: column; align-items: center; }
