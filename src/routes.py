@@ -6,6 +6,7 @@ import secrets
 from typing import Callable, Any, Concatenate, ParamSpec
 from flask import (
     Flask,
+    flash,
     redirect,
     render_template,
     request,
@@ -14,6 +15,7 @@ from flask import (
 from flask.typing import ResponseReturnValue, RouteCallable
 
 from .db import (
+    all_testcases,
     creds_of,
     get_cursor,
     get_problems,
@@ -67,10 +69,11 @@ def _problems():
 @deferred_route('/problem/<int:p_id>')
 def _problem(p_id: int):
     with get_cursor() as c:
+        get_tc = public_testcases if session.get('u') is None else all_testcases
         return render_template(
             'problem.html',
             problem=problem_info(p_id, cur=c),
-            testcases=public_testcases(p_id, cur=c),
+            testcases=get_tc(p_id, cur=c),
             u=session.get('u'))
 
 @deferred_route('/login', methods=('GET', 'POST'))
@@ -102,10 +105,18 @@ def _sign_up():
             return 'EXPECTED u AND pw AND pwa IN POST REQUEST'
 
         if pwa != pw:
-            return 'pwa INCORRECT'
+            flash('pwa INCORRECT', 'signup')
+            return redirect('/sign-up')
+        if len(u) < 5:
+            flash('user name too short', 'signup')
+            return redirect('/sign-up')
+        if len(pw) < 5:
+            flash('password too short', 'signup')
+            return redirect('/sign-up')
 
         if creds_of(u):
-            return 'u ALREADY EXISTS'
+            flash('u ALREADY EXISTS', 'signup')
+            return redirect('/sign-up')
         register(u, bcrypt.hashpw(pw.encode(), bcrypt.gensalt()).decode())
         return 'DONE'
     return render_template('sign-up.html')

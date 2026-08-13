@@ -6,7 +6,7 @@
   <link rel="stylesheet" href="{{url_for('static', filename='index.css')}}">
 </head>
 <body>
-    <div>
+    <div class="topbar">
         {% if u is not none() %}
         <a href="/logout">Sign Out</a>
         {% else %}

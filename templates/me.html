@@ -6,6 +6,14 @@
   <link rel="stylesheet" href="{{url_for('static', filename='index.css')}}">
 </head>
 <body>
+    <div class="topbar">
+        {% if u is not none() %}
+        <a href="/logout">Sign Out</a>
+        {% else %}
+        <a href="/login">Sign In</a>
+        <a href="/sign-up">Sign Up</a>
+        {% endif %}
+    </div>
     <nav id="navbar">
         <ul>
             <li><a href="/">Home</a></li>

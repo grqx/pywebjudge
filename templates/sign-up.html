@@ -6,6 +6,14 @@
   <link rel="stylesheet" href="{{url_for('static', filename='index.css')}}">
 </head>
 <body>
+    <div class="topbar">
+        {% if u is not none() %}
+        <a href="/logout">Sign Out</a>
+        {% else %}
+        <a href="/login">Sign In</a>
+        <a href="/sign-up">Sign Up</a>
+        {% endif %}
+    </div>
     <nav id="navbar">
         <ul>
             <li><a href="/">Home</a></li>
@@ -14,6 +22,20 @@
         </ul>
     </nav>
 
+    <div>
+        {% with errors = get_flashed_messages(category_filter=["signup"]) %}
+        {% if errors %}
+        <div class="alert-message block-message error">
+          <a class="close" href="#">×</a>
+          <ul>
+            {%- for msg in errors %}
+            <li>{{ msg }}</li>
+            {% endfor -%}
+          </ul>
+        </div>
+        {% endif %}
+        {% endwith %}
+    </div>
 
     <form class="gflex flex-col margin10px" name="sign-up" action="/sign-up" method="post">
         <label for="user">User name</label>

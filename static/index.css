@@ -116,3 +116,19 @@ table.pretty-table caption {
 
 /* vertically central-aligned container */
 .vcafc { display: flex; flex-direction: column; align-items: center; }
+
+.tcfbox {
+    display: flex;
+    column-gap: 5%;
+    flex-wrap: wrap;
+}
+
+div.topbar {
+    display: flex;
+    justify-content: flex-end;
+    column-gap: 5px;
+}
+
+div.topbar a {
+    color: inherit;
+}
