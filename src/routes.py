@@ -1,4 +1,3 @@
-# TODO: flask's builtin flash error
 import bcrypt
 import functools
 import secrets
@@ -81,17 +80,22 @@ def _login():
     if 'u' not in session and request.method == 'POST':
         pw = request.form.get('pw')
         u = request.form.get('u')
+        if not u:
+            flash('Username empty', 'login')
+            return redirect('/login')
         if not pw or not u:
-            return 'EXPECTED u AND pw IN POST REQUEST'
+            flash('Password empty', 'login')
+            return redirect('/login')
 
         if (r := creds_of(u)) and bcrypt.checkpw(pw.encode(), r['pw_hash'].encode()):
             session['u'] = r['user_id']
         else:
-            return 'INCORRECT LOGIN'
+            flash('Login incorrect', 'login')
+            return redirect('/login')
 
     if 'u' in session:
         return redirect(session.pop('redirect', '/me') if request.args.get('r') else '/me')
-    return render_template('login.html')
+    return render_template('login.html', u=session.get('u'))
 
 @deferred_route('/sign-up', methods=('GET', 'POST'))
 def _sign_up():
@@ -101,25 +105,30 @@ def _sign_up():
         pw = request.form.get('pw')
         pwa = request.form.get('pwa')
         u = request.form.get('u')
-        if not pwa or not pw or not u:
-            return 'EXPECTED u AND pw AND pwa IN POST REQUEST'
-
+        if not pwa:
+            flash('Password confirmation empty', 'signup')
+            return redirect('/sign-up')
+        if not pw:
+            flash('Password empty', 'signup')
+            return redirect('/sign-up')
+        if not u:
+            flash('Username empty', 'signup')
+            return redirect('/sign-up')
         if pwa != pw:
-            flash('pwa INCORRECT', 'signup')
+            flash('Password confirmation empty', 'signup')
             return redirect('/sign-up')
         if len(u) < 5:
-            flash('user name too short', 'signup')
+            flash('Username too short', 'signup')
             return redirect('/sign-up')
         if len(pw) < 5:
-            flash('password too short', 'signup')
+            flash('Password too short', 'signup')
             return redirect('/sign-up')
-
         if creds_of(u):
-            flash('u ALREADY EXISTS', 'signup')
+            flash('Username already taken', 'signup')
             return redirect('/sign-up')
         register(u, bcrypt.hashpw(pw.encode(), bcrypt.gensalt()).decode())
-        return 'DONE'
-    return render_template('sign-up.html')
+        return redirect('/login')
+    return render_template('sign-up.html', u=session.get('u'))
 
 @deferred_route('/me')
 @require_login

@@ -1,12 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <title>Log In - PWJ</title>
-  <link rel="stylesheet" href="{{url_for('static', filename='index.css')}}">
+    <meta charset="utf-8">
+    <title>Log In - PWJ</title>
+    <link rel="stylesheet" href="{{url_for('static', filename='index.css')}}">
 </head>
 <body>
     <div class="topbar">
+        <label for="colorscheme">Colour scheme: </label>
+        <select id="colorscheme">
+            <option selected>System</option>
+            <option>Light</option>
+            <option>Dark</option>
+        </select>
         {% if u is not none() %}
         <a href="/logout">Sign Out</a>
         {% else %}
@@ -22,8 +28,21 @@
         </ul>
     </nav>
 
+    {% with errors = get_flashed_messages(category_filter=["login"]) %}
+    {% if errors %}
+    <div class="gcmflex">
+        {%- for msg in errors %}
+            <div class="alert-message gflex">
+                <input id="alert-close-btn-{{ loop.index0 }}" class="hidden alert-close-chk" type="checkbox">
+                <label class="XL-font centre-align-v" for="alert-close-btn-{{ loop.index0 }}">&times;</label>
+                <p class="centre-align-v">{{ msg }}</p>
+            </div>
+        {% endfor -%}
+    </div>
+    {% endif %}
+    {% endwith %}
 
-    <form class="gflex flex-col margin10px" name="login" action="/login" method="post">
+    <form class="gcmflex" name="login" action="/login" method="post">
         <label for="passwd">User name</label>
         <input name="u" type="text" required></input>
         <label for="passwd">Password</label>

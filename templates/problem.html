@@ -1,14 +1,21 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <title>Problem P{{problem['id']}} - PWJ</title>
-  <link rel="stylesheet" href="{{url_for('static', filename='index.css')}}">
-  <script src="{{url_for('static', filename='problem.js')}}"></script>
-  <script src="https://cdn.jsdelivr.net/pyodide/v314.0.2/full/pyodide.js"></script>
+    <meta charset="utf-8">
+    <title>Problem P{{problem['id']}} - PWJ</title>
+    <link rel="stylesheet" href="{{url_for('static', filename='index.css')}}">
+    <script src="{{url_for('static', filename='problem.js')}}"></script>
+    <script src="https://cdn.jsdelivr.net/pyodide/v314.0.4/full/pyodide.js"></script>
+    <noscript><style>.yes-script { display: none }</style></noscript>
 </head>
 <body>
     <div class="topbar">
+        <label for="colorscheme">Colour scheme: </label>
+        <select id="colorscheme">
+            <option selected>System</option>
+            <option>Light</option>
+            <option>Dark</option>
+        </select>
         {% if u is not none() %}
         <a href="/logout">Sign Out</a>
         {% else %}
@@ -27,23 +34,27 @@
     <h2>P{{problem['id']}} - {{problem['title']}}</h2>
     <p>{{problem['desc'] or ''}}</p>
 
-    <noscript><p>This page currently requires JavaScript and WebAssembly execution to function.</p></noscript>
+    <noscript>
+        Python execution requires JavaScript and WebAssembly execution to function. You can still access the testcases below.
+    </noscript>
 
-    <button id="run" disabled="true">Pyodide is still loading</button>
-    <div class="grid2">
-        <code id="user-code" class="grid-wide code-area code-large" contentEditable="plaintext-only" spellcheck="false"></code>
-        <code id="eval-stdin" class="code-area code-small" contentEditable="plaintext-only" spellcheck="false"></code>
-        <code id="output" class="code-area code-small"></code>
-    </div>
+    <div class="yes-script">
+        <button id="run" disabled="true">Pyodide is still loading</button>
+        <div class="grid2">
+            <code id="user-code" class="grid-wide code-area code-large" contentEditable="plaintext-only" spellcheck="false"></code>
+            <code id="eval-stdin" class="code-area code-small" contentEditable="plaintext-only" spellcheck="false"></code>
+            <code id="output" class="code-area code-small"></code>
+        </div>
 
-    <div>
-        <select id="judge-tc">
-            <option selected>Use input box</option>
-            <option {{'disabled' if u is none()}}>Submit</option>
-            {% for testcase in testcases %}
-            <option>{{'Testcase' if testcase['type'] == 0 else 'Private testcase'}} {{testcase['test_no']}}</option>
-            {% endfor %}
-        </select>
+        <div>
+            <select id="judge-tc">
+                <option selected>Use input box</option>
+                <option {{'disabled' if u is none()}}>Submit</option>
+                {% for testcase in testcases %}
+                <option>{{'Testcase' if testcase['type'] == 0 else 'Private testcase'}} {{testcase['test_no']}}</option>
+                {% endfor %}
+            </select>
+        </div>
     </div>
 
     <div class="tcfbox">
@@ -52,7 +63,7 @@
             <h3>{{'Testcase' if testcase['type'] == 0 else 'Private testcase'}} {{testcase['test_no']}}</h3>
             <div class="gflex">
                 <p>Sample Input</p>
-                <button class="centre-align-v cbtn">Copy to input box</button>
+                <button class="centre-align-v cbtn yes-script">Copy to input box</button>
             </div>
             <pre><code class="tc-in">{{testcase['in']}}</code></pre>
             <p>Sample Output</p>

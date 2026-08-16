@@ -1,12 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <title>Home - PWJ</title>
-  <link rel="stylesheet" href="{{url_for('static', filename='index.css')}}">
+    <meta charset="utf-8">
+    <title>Home - PWJ</title>
+    <link rel="stylesheet" href="{{url_for('static', filename='index.css')}}">
 </head>
 <body>
     <div class="topbar">
+        <label for="colorscheme">Colour scheme: </label>
+        <select id="colorscheme">
+            <option selected>System</option>
+            <option>Light</option>
+            <option>Dark</option>
+        </select>
         {% if u is not none() %}
         <a href="/logout">Sign Out</a>
         {% else %}

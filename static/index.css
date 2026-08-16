@@ -1,6 +1,17 @@
 html {
+    font-family: "Segoe UI", sans-serif;
+}
+
+html:has(#colorscheme > option:nth-child(1):checked) {
     color-scheme: light dark;
-    font-family: "Segoe UI",sans-serif;
+}
+
+html:has(#colorscheme > option:nth-child(2):checked) {
+    color-scheme: light;
+}
+
+html:has(#colorscheme > option:nth-child(3):checked) {
+    color-scheme: dark;
 }
 
 #navbar {
@@ -65,26 +76,20 @@ html {
     grid-column: 1 / -1;
 }
 
+/* Gap+Column+Margin flex */
+.gcmflex {
+    display: flex;
+    gap: 12px;
+    flex-direction: column;
+    width: fit-content;
+    margin: 8px auto;
+}
+
+/* Gap flex */
 .gflex {
     display: flex;
     gap: 12px;
 }
-
-.grid250px {
-    /* TODO: test; --var? */
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-}
-
-.flex-col {
-    flex-direction: column;
-    width: fit-content;
-}
-
-.margin10px {
-    margin: 8px auto;
-}
-
 
 table.pretty-table {
     border-collapse: collapse;
@@ -131,4 +136,16 @@ div.topbar {
 
 div.topbar a {
     color: inherit;
+}
+
+div.alert-message:has(> input.alert-close-chk:checked) {
+    display: none;
+}
+
+div:has(div.alert-message) {
+    background-color: red;
+}
+
+.XL-font {
+    font-size: 48px;
 }
