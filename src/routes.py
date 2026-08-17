@@ -31,8 +31,10 @@ from .db import (
 P = ParamSpec('P')
 registry: list[tuple[RouteCallable, str, dict[str, Any]]] = []
 
+
 def deferred_route(rule: str, **opt) -> Callable[[RouteCallable], RouteCallable]:
     return lambda func: registry.append((func, rule, opt)) or func
+
 
 def require_login(cb: Callable[Concatenate[int, P], ResponseReturnValue]) -> Callable[P, ResponseReturnValue]:
     @functools.wraps(cb)
@@ -44,6 +46,7 @@ def require_login(cb: Callable[Concatenate[int, P], ResponseReturnValue]) -> Cal
 
     return wrapped
 
+
 def passrate(res):
     passes = sum(x['result'] for x in res)
     submissions = len(res)
@@ -52,9 +55,11 @@ def passrate(res):
     except ZeroDivisionError:
         return 'N/A'
 
+
 @deferred_route('/')
 def _root():
     return render_template('index.html', u=session.get('u'))
+
 
 @deferred_route('/problems')
 def _problems():
@@ -65,15 +70,18 @@ def _problems():
             '__passrate': passrate(get_results(problem['id'], cur=c)),
         } for problem in problems), u=session.get('u'))
 
+
 @deferred_route('/problem/<int:p_id>')
 def _problem(p_id: int):
     with get_cursor() as c:
-        get_tc = public_testcases if session.get('u') is None else all_testcases
+        get_tc = public_testcases if session.get(
+            'u') is None else all_testcases
         return render_template(
             'problem.html',
             problem=problem_info(p_id, cur=c),
             testcases=get_tc(p_id, cur=c),
             u=session.get('u'))
+
 
 @deferred_route('/login', methods=('GET', 'POST'))
 def _login():
@@ -96,6 +104,7 @@ def _login():
     if 'u' in session:
         return redirect(session.pop('redirect', '/me') if request.args.get('r') else '/me')
     return render_template('login.html', u=session.get('u'))
+
 
 @deferred_route('/sign-up', methods=('GET', 'POST'))
 def _sign_up():
@@ -130,6 +139,7 @@ def _sign_up():
         return redirect('/login')
     return render_template('sign-up.html', u=session.get('u'))
 
+
 @deferred_route('/me')
 @require_login
 def _me(user: int):
@@ -142,6 +152,7 @@ def _me(user: int):
             attempted=set(x['problem_id'] for x in subs),
             u=user)
 
+
 @deferred_route('/submit', methods=('POST', ))
 @require_login
 def _submit(user: int):
@@ -150,11 +161,13 @@ def _submit(user: int):
     submit(user, p_id, 1 if passed else 0)
     return ''
 
+
 @deferred_route('/logout')
 def _logout():
     if 'u' in session:
         del session['u']
     return redirect('/')
+
 
 def setup_flask(fapp: Flask):
     fapp.secret_key = secrets.token_bytes(32)
@@ -162,4 +175,3 @@ def setup_flask(fapp: Flask):
     for func, rule, opt in registry:
         fapp.add_url_rule(rule, view_func=func, **opt)
     fapp.teardown_request(lambda _: teardown())
-
