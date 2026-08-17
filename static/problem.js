@@ -88,14 +88,17 @@ document.addEventListener('DOMContentLoaded', async ()=>{
             break;
         case 1:
             setPyIO(judgeIO);
-            let pass = true;
+            let fail = null;
             for (let tcId = 0; tcId < cbtns.length; ++tcId) {
                 if (!judge(tcId)) {
-                    pass = false;
+                    fail = tcId;
                     break;
                 }
             }
-            alert(pass ? 'pass' : 'fail');
+            if (fail === null)
+                alert('You passed!');
+            else
+                alert(`You failed testcase ${fail}!`);
             await fetch('/submit', {
                 method: 'POST',
                 body: JSON.stringify({

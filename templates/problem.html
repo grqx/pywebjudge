@@ -61,6 +61,9 @@
         {% for testcase in testcases %}
         <div class="testcase">
             <h3>{{'Testcase' if testcase['type'] == 0 else 'Private testcase'}} {{testcase['test_no']}}</h3>
+            {% if testcase['note'] %}
+                <p>Note: {{testcase['note']}}</p>
+            {% endif %}
             <div class="gflex">
                 <p>Sample Input</p>
                 <button class="centre-align-v cbtn yes-script">Copy to input box</button>

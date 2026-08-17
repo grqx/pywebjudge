@@ -91,7 +91,7 @@ def _login():
         if not u:
             flash('Username empty', 'login')
             return redirect('/login')
-        if not pw or not u:
+        if not pw:
             flash('Password empty', 'login')
             return redirect('/login')
 
@@ -112,25 +112,21 @@ def _sign_up():
         return redirect(session.pop('redirect', '/me') if request.args.get('r') else '/me')
     if request.method == 'POST':
         pw = request.form.get('pw')
-        pwa = request.form.get('pwa')
+        confirm = request.form.get('pwa')
         u = request.form.get('u')
-        if not pwa:
-            flash('Password confirmation empty', 'signup')
-            return redirect('/sign-up')
-        if not pw:
-            flash('Password empty', 'signup')
-            return redirect('/sign-up')
-        if not u:
-            flash('Username empty', 'signup')
-            return redirect('/sign-up')
-        if pwa != pw:
-            flash('Password confirmation empty', 'signup')
-            return redirect('/sign-up')
-        if len(u) < 5:
-            flash('Username too short', 'signup')
-            return redirect('/sign-up')
-        if len(pw) < 5:
-            flash('Password too short', 'signup')
+        for formvar, name in ((u, 'Username'), (pw, 'Password'), (confirm, 'Password confirmation')):
+            if not formvar:
+                flash(f'{name} empty', 'signup')
+                return redirect('/sign-up')
+            if len(formvar) < 5:
+                flash(f'{name} too short', 'signup')
+                return redirect('/sign-up')
+            if len(formvar) > 64:
+                flash(f'{name} too long', 'signup')
+                return redirect('/sign-up')
+        assert u and confirm and pw
+        if confirm != pw:
+            flash('Password confirmation incorrect', 'signup')
             return redirect('/sign-up')
         if creds_of(u):
             flash('Username already taken', 'signup')
