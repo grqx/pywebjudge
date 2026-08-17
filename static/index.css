@@ -15,7 +15,7 @@ html:has(#colorscheme > option:nth-child(3):checked) {
 }
 
 #navbar {
-    background-color: #3a3a3a80;
+    background-color: #3a3a3a;
     text-align: center;
 }
 
@@ -32,18 +32,18 @@ html:has(#colorscheme > option:nth-child(3):checked) {
 }
 
 #navbar ul > li > a {
-    color: #ffffff80;
+    color: #fff;
     text-decoration: none;
     display: block;
     padding: 8px;
 }
 
 #navbar a:visited {
-    color: #ffffff80;
+    color: #fff;
 }
 
 #navbar a:hover {
-    background-color: #11111180;
+    background-color: #111;
 }
 
 .centre-align-v {
@@ -101,7 +101,7 @@ table.pretty-table thead tr {
 }
 
 table.pretty-table tr:nth-child(even) {
-    background-color: #80808080;
+    background-color: #a0a0a020;
 }
 
 /* not strictly required, included for consistency */
