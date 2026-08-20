@@ -89,7 +89,8 @@ def _problem(p_id: int):
             cat=get_category(p['cat_id'], cur=c),
             # use list comprehension instead of generator expression here
             # otherwise it would result in UAF of the cursor
-            tags=[get_tag(tag['tag_id'], cur=c)['name'] for tag in get_tags(p_id, cur=c)],
+            tags=[get_tag(tag['tag_id'], cur=c)['name']
+                  for tag in get_tags(p_id, cur=c)],
             problem=p,
             testcases=get_tc(p_id, cur=c))
 
