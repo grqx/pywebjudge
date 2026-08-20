@@ -1,3 +1,4 @@
+{% set colour = session.get('colour') %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -7,17 +8,20 @@
 </head>
 <body>
     <div class="topbar">
-        <label for="colorscheme">Colour scheme: </label>
-        <select id="colorscheme">
-            <option selected>System</option>
-            <option>Light</option>
-            <option>Dark</option>
+        <form action="/colour" method="post">
+        <label for="colourscheme">Colour scheme: </label>
+        <select name="colour" id="colourscheme">
+            <option value=0{{' selected' if colour == 0 else ''}}>System</option>
+            <option value=1{{' selected' if colour == 1 else ''}}>Light</option>
+            <option value=2{{' selected' if colour == 2 else ''}}>Dark</option>
         </select>
-        {% if u is not none() %}
-        <a href="/logout">Sign Out</a>
+        <button type="submit">Remember preferences</button>
+        </form>
+        {% if session.get('u') is not none() %}
+            <a href="/logout">Sign Out</a>
         {% else %}
-        <a href="/login">Sign In</a>
-        <a href="/sign-up">Sign Up</a>
+            <a href="/login">Sign In</a>
+            <a href="/sign-up">Sign Up</a>
         {% endif %}
     </div>
     <nav id="navbar">

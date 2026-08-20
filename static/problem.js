@@ -5,6 +5,8 @@ document.addEventListener('DOMContentLoaded', async ()=>{
     const output = document.getElementById('output');
     const cbtns = document.querySelectorAll('.testcase button.cbtn');
     const judgeTc = document.getElementById('judge-tc');
+    // we do this even if it is already set in the html
+    // because some browsers save form states automatically
     btn.setAttribute('disabled', '');
     const arrEq = (a,b)=>
       a.length === b.length &&

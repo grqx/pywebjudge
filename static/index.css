@@ -2,15 +2,15 @@ html {
     font-family: "Segoe UI", sans-serif;
 }
 
-html:has(#colorscheme > option:nth-child(1):checked) {
+html:has(#colourscheme > option:nth-child(1):checked) {
     color-scheme: light dark;
 }
 
-html:has(#colorscheme > option:nth-child(2):checked) {
+html:has(#colourscheme > option:nth-child(2):checked) {
     color-scheme: light;
 }
 
-html:has(#colorscheme > option:nth-child(3):checked) {
+html:has(#colourscheme > option:nth-child(3):checked) {
     color-scheme: dark;
 }
 

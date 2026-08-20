@@ -65,7 +65,7 @@ def passrate(res: Sequence[sqlite3.Row]):
 
 @deferred_route('/')
 def _root():
-    return render_template('index.html', u=session.get('u'))
+    return render_template('index.html')
 
 
 @deferred_route('/problems')
@@ -75,7 +75,7 @@ def _problems():
         return render_template('problems.html', problems=({
             **problem,
             '__passrate': passrate(get_results(problem['id'], cur=c)),
-        } for problem in problems), u=session.get('u'))
+        } for problem in problems))
 
 
 @deferred_route('/problem/<int:p_id>')
@@ -91,8 +91,7 @@ def _problem(p_id: int):
             # otherwise it would result in UAF of the cursor
             tags=[get_tag(tag['tag_id'], cur=c)['name'] for tag in get_tags(p_id, cur=c)],
             problem=p,
-            testcases=get_tc(p_id, cur=c),
-            u=session.get('u'))
+            testcases=get_tc(p_id, cur=c))
 
 
 @deferred_route('/login', methods=('GET', 'POST'))
@@ -115,7 +114,7 @@ def _login():
 
     if 'u' in session:
         return redirect(session.pop('redirect', '/me') if request.args.get('r') else '/me')
-    return render_template('login.html', u=session.get('u'))
+    return render_template('login.html')
 
 
 @deferred_route('/sign-up', methods=('GET', 'POST'))
@@ -147,7 +146,7 @@ def _sign_up():
             return redirect('/sign-up')
         register(u, bcrypt.hashpw(pw.encode(), bcrypt.gensalt()).decode())
         return redirect('/login')
-    return render_template('sign-up.html', u=session.get('u'))
+    return render_template('sign-up.html')
 
 
 @deferred_route('/me')
@@ -159,8 +158,7 @@ def _me(user: int):
             'me.html',
             info=get_userinfo(user, cur=c),
             passrate=passrate(subs),
-            attempted=set(x['problem_id'] for x in subs),
-            u=user)
+            attempted=set(x['problem_id'] for x in subs))
 
 
 @deferred_route('/submit', methods=('POST', ))
@@ -177,6 +175,18 @@ def _logout():
     if 'u' in session:
         del session['u']
     return redirect('/')
+
+
+@deferred_route('/colour', methods=('POST', ))
+def _colour():
+    colour = request.form.get('colour')
+    if not colour:
+        return 'no colour set', 400
+    if colour not in ('0', '1', '2'):
+        return 'invalid colour', 400
+    session['colour'] = int(colour)
+    print(f'set session colour to {int(colour)}')
+    return '', 204
 
 
 def setup_flask(fapp: Flask):

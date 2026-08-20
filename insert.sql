@@ -16,7 +16,7 @@ INSERT INTO Problem (cat_id, title, "desc", created_by) VALUES
 (1, 'A+B', 'Calculate the sum of two integers, each less than 10000000, separated by a space.', 0),
 (1, 'A-B', 'Calculate the absolute difference between two integers, each less than 10000000, separated by a space.', 0),
 (2, 'Matching parentheses', 'Check if every opening symbol (one of "(", "{", "[") has a correct, properly nested closing symbol ("]", "}", ")").
-Write "yes" to output and "no" otherwise.', 0),
+Write "yes" to output or "no" otherwise.', 0),
 (3, 'Prefix match', 'Given two strings joined with a space, check whether the first string is a prefix of the second.
 If so, write "yes" to output. Otherwise, write "no". ', 0);
 
