@@ -1,4 +1,5 @@
-{% set colour = session.get('colour') %}
+{% set u = session.get('u') %}
+{% set colour = session.get('colour', 0) %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -20,7 +21,7 @@
         </select>
         <button type="submit">Remember preferences</button>
         </form>
-        {% if session.get('u') is not none() %}
+        {% if u is not none() %}
             <a href="/logout">Sign Out</a>
         {% else %}
             <a href="/login">Sign In</a>
@@ -57,7 +58,7 @@
         <div>
             <select id="judge-tc">
                 <option selected>Use input box</option>
-                <option {{'disabled' if u is none()}}>Submit</option>
+                <option{{' disabled' if u is none()}}>Submit</option>
                 {% for testcase in testcases %}
                 <option>{{'Testcase' if testcase['type'] == 0 else 'Private testcase'}} {{testcase['test_no']}}</option>
                 {% endfor %}

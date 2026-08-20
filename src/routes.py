@@ -186,7 +186,6 @@ def _colour():
     if colour not in ('0', '1', '2'):
         return 'invalid colour', 400
     session['colour'] = int(colour)
-    print(f'set session colour to {int(colour)}')
     return '', 204
 
 
