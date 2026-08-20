@@ -27,6 +27,7 @@ def global_db() -> sqlite3.Connection:
     return db
 
 
+# gracefully shut down the database connection
 def teardown():
     if (db := getattr(storage, 'db', None)) is not None:
         db.close()
@@ -35,6 +36,7 @@ def teardown():
 OptCursor = sqlite3.Cursor | None
 
 
+# grab a new cursor if cur is None, basically
 @contextlib.contextmanager
 def get_cursor(cur: OptCursor = None):
     if cur is not None:
@@ -53,7 +55,7 @@ DBRet = FetchManyRet | FetchOneRet | None
 
 
 class Decorator(Protocol[Tc]):
-    @staticmethod
+    @staticmethod  # make the type checker happy
     def __call__(cb: Callable[P, None], /) -> Callable[P, Tc]: ...
 
 
@@ -71,13 +73,15 @@ def db_util(query: LiteralString,
             mode: Literal['one']) -> Decorator[FetchOneRet]: ...
 
 
+# Python's stdlib typing system does not currently support modifying ParamSpecs
+# we have to do this for a good developer experience
 def db_util(query: LiteralString, mode: Literal['all'] | Literal['one'] | None = None) -> Decorator[DBRet]:
     def wrapper(_: Callable[P, None]) -> Callable[P, DBRet]:
         def inner(*a: P.args, **k: P.kwargs) -> DBRet:
             cur = cast(OptCursor, k.pop('cur', None))
             if k:
                 raise TypeError(
-                    'kwargs other than "cur" are not allowed on db utils')
+                    'kwargs other than "cur" are not allowed on db_util functions')
             with get_cursor(cur) as c:
                 res = c.execute(query, a)
                 if mode is None:
@@ -92,8 +96,20 @@ def db_util(query: LiteralString, mode: Literal['all'] | Literal['one'] | None =
 def get_problems(*, cur: OptCursor = None): ...
 
 
-@db_util(r'SELECT id, title, "desc" FROM Problem WHERE id = ?', 'one')
+@db_util(r'SELECT id, title, "desc", cat_id FROM Problem WHERE id = ?', 'one')
 def problem_info(p_id: int, *, cur: OptCursor = None): ...
+
+
+@db_util(r'SELECT name FROM Category WHERE id = ?', 'one')
+def get_category(cat_id: int, *, cur: OptCursor = None): ...
+
+
+@db_util(r'SELECT tag_id FROM Problems2tags WHERE problem_id = ?', 'all')
+def get_tags(p_id: int, *, cur: OptCursor = None): ...
+
+
+@db_util(r'SELECT name FROM Tag WHERE id = ?', 'one')
+def get_tag(tag_id: int, *, cur: OptCursor = None): ...
 
 
 @db_util(r'SELECT type, test_no, "in", "out", "note" FROM Testcase WHERE problem_id = ? AND type = 0', 'all')

@@ -61,6 +61,10 @@ html:has(#colorscheme > option:nth-child(3):checked) {
     overflow-x: auto;
     white-space: pre;
 }
+.pre {
+    overflow-x: auto;
+    white-space: pre;
+}
 
 .hidden {
     display: none;

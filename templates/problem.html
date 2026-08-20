@@ -32,7 +32,11 @@
     </nav>
 
     <h2>P{{problem['id']}} - {{problem['title']}}</h2>
-    <p>{{problem['desc'] or ''}}</p>
+    <h5>Category: {{cat['name']}}</h3>
+    {% if tags %}
+        <h5>Tags: {{tags | join(', ')}}</h2>
+    {% endif %}
+    <p class="pre">{{problem['desc'] or ''}}</p>
 
     <noscript>
         Python execution requires JavaScript and WebAssembly execution to function. You can still access the testcases below.
