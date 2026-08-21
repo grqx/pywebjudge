@@ -41,7 +41,7 @@
     <h2>P{{problem['id']}} - {{problem['title']}}</h2>
     <h5>Category: {{cat['name']}}</h3>
     {% if tags %}
-        <h5>Tags: {{tags | join(', ')}}</h2>
+        <h5>Tags: {{tags | map(attribute="name") | join(', ')}}</h2>
     {% endif %}
     <p class="pre">{{problem['desc'] or ''}}</p>
 

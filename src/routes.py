@@ -23,9 +23,8 @@ from .db import (
     get_problems,
     get_results,
     get_subs,
-    get_tags,
+    get_tags_joined,
     get_userinfo,
-    get_tag,
     problem_info,
     public_testcases,
     register,
@@ -129,10 +128,7 @@ def _problem(p_id: int):
         return render_template(
             'problem.html',
             cat=get_category(p['cat_id'], cur=c),
-            # use list comprehension instead of generator expression here
-            # otherwise it would result in UAF of the cursor
-            tags=[get_tag(tag['tag_id'], cur=c)['name']
-                  for tag in get_tags(p_id, cur=c)],
+            tags=get_tags_joined(p_id, cur=c),
             problem=p,
             testcases=tcs)
 

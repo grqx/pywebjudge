@@ -93,21 +93,22 @@ document.addEventListener('DOMContentLoaded', async ()=>{
             let predicate = 'passed';
             for (let tcId = 0; tcId < cbtns.length; ++tcId) {
                 if (!judge(tcId)) {
-                    predicate = `failed (testcase ${predicate})`;
+                    predicate = `failed (testcase ${tcId + 1})`;
                     break;
                 }
             }
             const submitResp = await fetch('/submit', {
                 method: 'POST',
                 body: JSON.stringify({
-                    pass,
+                    pass: predicate === 'passed',
                     problem: parseInt((x=>x.slice(x.lastIndexOf('/') + 1))(window.location.pathname)),
                 }),
                 headers: { 'content-type': 'application/json' },
             });
             const submitJson = await submitResp.json();
             const status = submitJson?.status === 'success' ? "succeeded" : "failed";
-            alert(`Judge result: ${predicate}; Submission ${status}. ${submitJson?.error}`)
+            const err = submitJson?.error ? ` {submitJson.error}` : "";
+            alert(`Judge result: ${predicate}; Submission ${status}.${err}`)
             break;
         default:
             setPyIO(judgeIO);

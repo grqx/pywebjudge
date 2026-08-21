@@ -11,14 +11,12 @@ from src.db import (
     get_problems,
     get_subs,
     get_results,
-    get_tag,
-    get_tags,
+    get_tags_joined,
     get_userinfo,
     problem_info,
     public_testcases,
     register,
     submit,
-    teardown,
 )
 
 
@@ -86,19 +84,14 @@ class TestDatabase(unittest.TestCase):
             'title': 'A+B',
         }, list(map(dict, get_problems(cur=self.CURSOR))))
 
-    def test_get_tag(self) -> None:
-        expected_tags = 'Addition and subtraction', 'Mathematics', 'Stack', 'Strings'
-        for idx1, tag in enumerate(expected_tags, start=1):
-            got_tag = get_tag(idx1, cur=self.CURSOR)
-            assert got_tag is not None
-            self.assertEqual(dict(got_tag), {'name': tag})
-
-    def test_get_tags(self) -> None:
+    def test_get_tags_joined(self) -> None:
         for p_id in range(1, 5):  # problems
-            tags = get_tags(p_id, cur=self.CURSOR)
-            self.assertNotEqual(len(tags), 0)
-            for tag_id in tags:  # for each tag
-                self.assertIn(tag_id['tag_id'], range(1, 5))
+            tags = tuple(
+                map(lambda x: x['name'], get_tags_joined(p_id, cur=self.CURSOR)))
+            self.assertGreater(len(tags), 0)
+            for tag in tags:  # for each tag
+                self.assertIn(tag, ('Addition and subtraction',
+                              'Mathematics', 'Stack', 'Strings'))
 
     def test_get_uesrinfo(self) -> None:
         ui = get_userinfo(0, cur=self.CURSOR)
