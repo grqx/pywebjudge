@@ -31,6 +31,7 @@ def global_db() -> sqlite3.Connection:
 def teardown():
     if (db := getattr(storage, 'db', None)) is not None:
         db.close()
+        delattr(storage, 'db')
 
 
 OptCursor = sqlite3.Cursor | None

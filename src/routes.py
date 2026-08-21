@@ -1,9 +1,9 @@
 import bcrypt
-import sqlite3
 import functools
 import secrets
+import sqlite3
 
-from typing import Callable, Any, Concatenate, ParamSpec, Sequence
+from typing import Callable, Any, Concatenate, Final, ParamSpec, Sequence
 from flask import (
     Flask,
     flash,
@@ -12,6 +12,7 @@ from flask import (
     request,
     session,
 )
+from flask.json import jsonify
 from flask.typing import ResponseReturnValue, RouteCallable
 
 from .db import (
@@ -31,8 +32,21 @@ from .db import (
     submit,
     teardown,
 )
+from .validate import (
+    ShowError,
+    chk_int,
+    chk_form,
+    chk_json,
+    chk_is_int,
+    make_err,
+)
 
 P = ParamSpec('P')
+FAILURE_JSON: Final = {'status': 'faiure', 'error': 'internal'}
+FIELD_PASSED: Final = 'Local judge result'
+FIELD_P_ID: Final = 'Problem ID'
+FIELD_U: Final = 'User name'
+FIELD_PW: Final = 'Password'
 registry: list[tuple[RouteCallable, str, dict[str, Any]]] = []
 
 
@@ -41,8 +55,12 @@ def deferred_route(rule: str, **opt) -> Callable[[RouteCallable], RouteCallable]
     return lambda func: registry.append((func, rule, opt)) or func
 
 
-# marks a route as login-required. Guests will be redirected to /login with a redirect flag set
 def require_login(cb: Callable[Concatenate[int, P], ResponseReturnValue]) -> Callable[P, ResponseReturnValue]:
+    """
+    Marks a route as login-required.
+    Precondition: route supports GET
+    Guests will be redirected to /login with a redirect flag set
+    """
     @functools.wraps(cb)
     def wrapped(*a: P.args, **kw: P.kwargs) -> ResponseReturnValue:
         if (u := session.get('u')) is not None:
@@ -53,8 +71,29 @@ def require_login(cb: Callable[Concatenate[int, P], ResponseReturnValue]) -> Cal
     return wrapped
 
 
-# calculate the pass rate of a list of submissions, N/A if divided by zero
+def json_api(fn: Callable[P, Any]) -> Callable[P, ResponseReturnValue]:
+    @functools.wraps(fn)
+    def wrapped(*a: P.args, **kw: P.kwargs):
+        try:
+            result = fn(*a, **kw)
+        except ShowError as e:
+            resp = {'status': 'failure'}
+            if e.err_info is not None:
+                resp['error'] = e.err_info
+            return jsonify(resp), e.code
+        except Exception as e:
+            FAILURE_JSON['error'] = repr(e)
+            return jsonify(FAILURE_JSON), 500
+        else:
+            return jsonify({'status': 'success', 'data': result}), 200
+
+    return wrapped
+
+
 def passrate(res: Sequence[sqlite3.Row]):
+    """
+    Returns the pass rate of a list of submissions, or N/A if unavailable.
+    """
     passes = sum(x['result'] for x in res)
     submissions = len(res)
     try:
@@ -80,10 +119,13 @@ def _problems():
 
 @deferred_route('/problem/<int:p_id>')
 def _problem(p_id: int):
+    p_id = chk_int(p_id, FIELD_P_ID)
     with get_cursor() as c:
-        get_tc = public_testcases if session.get(
-            'u') is None else all_testcases
+        tcs = (public_testcases if session.get(
+            'u') is None else all_testcases)(p_id, cur=c)
         p = problem_info(p_id, cur=c)
+        if p is None:
+            raise ShowError(404, err_info=f'Problem {p_id} does not exist')
         return render_template(
             'problem.html',
             cat=get_category(p['cat_id'], cur=c),
@@ -92,22 +134,23 @@ def _problem(p_id: int):
             tags=[get_tag(tag['tag_id'], cur=c)['name']
                   for tag in get_tags(p_id, cur=c)],
             problem=p,
-            testcases=get_tc(p_id, cur=c))
+            testcases=tcs)
 
 
 @deferred_route('/login', methods=('GET', 'POST'))
 def _login():
     if 'u' not in session and request.method == 'POST':
-        pw = request.form.get('pw')
-        u = request.form.get('u')
-        if not u:
-            flash('Username empty', 'login')
-            return redirect('/login')
-        if not pw:
-            flash('Password empty', 'login')
-            return redirect('/login')
+        try:
+            username = chk_form('u', FIELD_U, lb=1)
+            passwd = chk_form('pw', FIELD_PW, lb=1)
+        except ShowError as e:
+            if e.err_info is not None:
+                flash(e.err_info, 'login')
+                return redirect('/login')
+            raise
 
-        if (r := creds_of(u)) and bcrypt.checkpw(pw.encode(), r['pw_hash'].encode()):
+        if (r := creds_of(username)) and bcrypt.checkpw(
+                passwd.encode(), r['pw_hash'].encode()):
             session['u'] = r['user_id']
         else:
             flash('Login incorrect', 'login')
@@ -120,34 +163,29 @@ def _login():
 
 @deferred_route('/sign-up', methods=('GET', 'POST'))
 def _sign_up():
-    if 'u' in session:
-        return redirect(session.pop('redirect', '/me') if request.args.get('r') else '/me')
     if request.method == 'POST':
-        pw = request.form.get('pw')
-        confirm = request.form.get('pwa')
-        u = request.form.get('u')
-        # loop through to reduce code duplication
-        for formvar, name in ((u, 'Username'), (pw, 'Password'), (confirm, 'Password confirmation')):
-            if not formvar:
-                flash(f'{name} empty', 'signup')
+        try:
+            username = chk_form('u', FIELD_U)
+            passwd = chk_form('pw', FIELD_PW)
+            confirm = chk_form('pwa', 'Password confirmation')
+        except ShowError as e:
+            if e.err_info is not None:
+                flash(e.err_info, 'signup')
                 return redirect('/sign-up')
-            if len(formvar) < 5:
-                flash(f'{name} too short', 'signup')
-                return redirect('/sign-up')
-            if len(formvar) > 64:
-                flash(f'{name} too long', 'signup')
-                return redirect('/sign-up')
-        # make the type checker happy
-        assert u and confirm and pw
-        if confirm != pw:
+            raise
+        if confirm != passwd:
             flash('Password confirmation incorrect', 'signup')
             return redirect('/sign-up')
-        if creds_of(u):
+        if creds_of(username):
             flash('Username already taken', 'signup')
             return redirect('/sign-up')
-        register(u, bcrypt.hashpw(pw.encode(), bcrypt.gensalt()).decode())
+        register(username, bcrypt.hashpw(
+            passwd.encode(), bcrypt.gensalt()).decode())
         return redirect('/login')
-    return render_template('sign-up.html')
+    elif 'u' in session:
+        return redirect(session.pop('redirect', '/me') if request.args.get('r') else '/me')
+    else:
+        return render_template('sign-up.html')
 
 
 @deferred_route('/me')
@@ -163,15 +201,24 @@ def _me(user: int):
 
 
 @deferred_route('/submit', methods=('POST', ))
-@require_login
-def _submit(user: int):
-    passed = int(request.json['pass'])
-    p_id = int(request.json['problem'])
-    submit(user, p_id, 1 if passed else 0)
-    return ''
+@json_api
+def _submit():
+    if (user := session.get('u')) is None:
+        raise ShowError(403, err_info='Login required')
+    if not request.is_json:
+        raise ShowError(400, err_info='POST request not in JSON format')
+    passed = chk_int(
+        chk_is_int(chk_json('pass'), name=FIELD_PASSED),
+        name=FIELD_PASSED, ub=1)
+    p_id = chk_int(
+        chk_is_int(chk_json('problem'), name=FIELD_P_ID), name=FIELD_P_ID)
+    with get_cursor() as c:
+        if problem_info(p_id, cur=c) is None:
+            raise ShowError(404, err_info=f'Problem {p_id} does not exist')
+        submit(user, p_id, passed, cur=c)
 
 
-@deferred_route('/logout')
+@deferred_route('/logout', methods=('POST', ))
 def _logout():
     if 'u' in session:
         del session['u']
@@ -182,14 +229,15 @@ def _logout():
 def _colour():
     colour = request.form.get('colour')
     if not colour:
-        return 'no colour set', 400
+        raise ShowError(400, err_info='No colour set')
     if colour not in ('0', '1', '2'):
-        return 'invalid colour', 400
+        raise ShowError(400, err_info='Invalid colour')
     session['colour'] = int(colour)
     return '', 204
 
 
-def setup_flask(fapp: Flask):
+def setup_flask() -> Flask:
+    fapp = Flask('pywebjudge')
     fapp.secret_key = secrets.token_bytes(32)
     fapp.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
     for func, rule, opt in registry:
@@ -197,3 +245,7 @@ def setup_flask(fapp: Flask):
     # teardown doesn't accept any arguments
     # use a lambda to work around it
     fapp.teardown_appcontext(lambda _: teardown())
+    fapp.errorhandler(ShowError)(make_err)
+    for code in (404, 500):
+        fapp.errorhandler(code)(lambda e: make_err(ShowError(e.code)))
+    return fapp

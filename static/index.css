@@ -150,6 +150,10 @@ div:has(div.alert-message) {
     background-color: red;
 }
 
+div.error-info {
+    color: red;
+}
+
 .XL-font {
     font-size: 48px;
 }

@@ -36,4 +36,4 @@ INSERT INTO Testcase (test_no, problem_id, "type", "in", "out", "note") VALUES
 (1, 2, 0, '3 5', '-2', '3 - 5 is -2'),
 (2, 2, 0, '87 12', '75', NULL),
 (3, 2, 1, '9971246 127492', '9843754', 'bigger numbers'),
-(4, 2, 1, '123456 8926822', '−8803366', 'bigger numbers');
+(4, 2, 1, '123456 8926822', '−8803366', 'negative and bigger numbers');

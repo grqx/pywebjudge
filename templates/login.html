@@ -10,16 +10,18 @@
 <body>
     <div class="topbar">
         <form action="/colour" method="post">
-        <label for="colourscheme">Colour scheme: </label>
-        <select name="colour" id="colourscheme">
-            <option value=0{{' selected' if colour == 0 else ''}}>System</option>
-            <option value=1{{' selected' if colour == 1 else ''}}>Light</option>
-            <option value=2{{' selected' if colour == 2 else ''}}>Dark</option>
-        </select>
-        <button type="submit">Remember preferences</button>
+            <label for="colourscheme">Colour scheme: </label>
+            <select name="colour" id="colourscheme">
+                <option value=0{{' selected' if colour == 0 else ''}}>System</option>
+                <option value=1{{' selected' if colour == 1 else ''}}>Light</option>
+                <option value=2{{' selected' if colour == 2 else ''}}>Dark</option>
+            </select>
+            <button type="submit">Remember preferences</button>
         </form>
         {% if u is not none() %}
-            <a href="/logout">Sign Out</a>
+            <form action="/logout" method="post">
+                <button type="submit">Sign Out</a>
+            </form>
         {% else %}
             <a href="/login">Sign In</a>
             <a href="/sign-up">Sign Up</a>
@@ -47,7 +49,8 @@
     {% endif %}
     {% endwith %}
 
-    <form class="gcmflex" name="login" action="/login" method="post">
+    <!--full_path used for ?r=1 forwarding-->
+    <form class="gcmflex" name="login" action="{{ request.full_path }}" method="post">
         <label for="passwd">User name</label>
         <input name="u" type="text" required></input>
         <label for="passwd">Password</label>

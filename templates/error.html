@@ -4,7 +4,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>Home - PWJ</title>
+    <title>Error {{rp}} - PWJ</title>
     <link rel="stylesheet" href="{{url_for('static', filename='index.css')}}">
 </head>
 <body>
@@ -20,7 +20,7 @@
         </form>
         {% if u is not none() %}
             <form action="/logout" method="post">
-                <button type="submit">Sign Out</a>
+            r   <button type="submit">Sign Out</a>
             </form>
         {% else %}
             <a href="/login">Sign In</a>
@@ -35,9 +35,12 @@
         </ul>
     </nav>
 
-    <div class="vcafc">
-        <h1>PyWebJudge - Python based competitive programming online judge</h1>
-        <p>This website is still a work-in-progress.</p>
+    <div class="error-info">
+        <h1>Error {{rp}}</h1>
+        <hr>
+        {% if err_info is not none() %}
+            <p>{{err_info}}</p>
+        {% endif %}
     </div>
 </body>
 </html>
