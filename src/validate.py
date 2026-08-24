@@ -14,6 +14,9 @@ class ShowError(Exception):
 
 
 def make_err(err: ShowError) -> ResponseReturnValue:
+    """
+    Render an error page according to a ShowError instance
+    """
     code = err.code
     err_info = err.err_info
     reason = err.reason
