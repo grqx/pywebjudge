@@ -2,6 +2,7 @@ import bcrypt
 import functools
 import secrets
 import sqlite3
+import types
 
 from typing import Callable, Any, Concatenate, Final, ParamSpec, Sequence
 from flask import (
@@ -41,7 +42,10 @@ from .validate import (
 )
 
 P = ParamSpec('P')
-FAILURE_JSON: Final = {'status': 'faiure', 'error': 'internal'}
+FAILURE_JSON: Final = types.MappingProxyType({
+    'status': 'failure',
+    'error': 'internal',
+})
 FIELD_PASSED: Final = 'Local judge result'
 FIELD_P_ID: Final = 'Problem ID'
 FIELD_U: Final = 'User name'
@@ -81,12 +85,11 @@ def json_api(fn: Callable[P, Any]) -> Callable[P, ResponseReturnValue]:
         try:
             result = fn(*a, **kw)
         except ShowError as e:
-            resp = {'status': 'failure'}
+            resp = FAILURE_JSON.copy()
             if e.err_info is not None:
                 resp['error'] = e.err_info
             return jsonify(resp), e.code
         except Exception as e:
-            FAILURE_JSON['error'] = repr(e)
             return jsonify(FAILURE_JSON), 500
         else:
             return jsonify({'status': 'success', 'data': result}), 200
@@ -102,7 +105,7 @@ def passrate(res: Sequence[sqlite3.Row]):
     submissions = len(res)
     try:
         return f'{passes / submissions * 100:.2f}%'
-    except OverflowError, ZeroDivisionError:
+    except (OverflowError, ZeroDivisionError):
         return 'N/A'
 
 

@@ -5,7 +5,6 @@ import unittest
 from src.db import (
     all_testcases,
     creds_of,
-    db_util,
     get_category,
     get_cursor,
     get_problems,
@@ -18,10 +17,11 @@ from src.db import (
     register,
     submit,
 )
+from .utils import db_test
 
 
 class TestDatabase(unittest.TestCase):
-    USER_NAME: typing.Final = 'test'  # 4 chars, impossible to create from web UI
+    USER_NAME: typing.Final = 'test'
     PW_HASH: typing.Final = 'impossible pw hash'
     TC1 = ({
         'type': 0,
@@ -46,6 +46,7 @@ class TestDatabase(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls) -> None:
+        cls.enterClassContext(db_test())
         cls.CURSOR = cls.enterClassContext(get_cursor())
 
     def test_all_testcases(self) -> None:
@@ -133,10 +134,6 @@ class TestDatabase(unittest.TestCase):
                          {'problem_id': 1, 'result': 1}])
         self.assertEqual(list(map(dict, get_results(1, cur=self.CURSOR))), [
                          *old_results, {'result': 1}])
-        db_util(r'DELETE FROM Submission WHERE user_id = ?')(
-            lambda _, **__: None)(u, cur=self.CURSOR)
-        db_util(r'DELETE FROM User WHERE user_id = ?')(
-            lambda _, **__: None)(u, cur=self.CURSOR)
 
 
 if __name__ == '__main__':

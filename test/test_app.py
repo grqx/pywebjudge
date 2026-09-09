@@ -5,7 +5,7 @@ import unittest
 
 from typing import Final
 from src.routes import setup_flask
-from src.db import db_util, creds_of
+from .utils import db_test
 
 
 def find_err_info(html: str):
@@ -23,14 +23,10 @@ class TestFlaskApp(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls) -> None:
+        cls.enterClassContext(db_test())
         cls.app = setup_flask()
         cls.app.config['TESTING'] = True
         cls.clnt = cls.enterClassContext(cls.app.test_client())
-
-    @classmethod
-    def tearDownClass(cls) -> None:
-        db_util(r'DELETE FROM Submission WHERE user_id = 0 AND problem_id = 2')(
-            lambda: None)()
 
     def test_colour(self) -> None:
         with self.clnt.session_transaction() as sess:
@@ -320,14 +316,11 @@ class TestFlaskApp(unittest.TestCase):
         with self.clnt.session_transaction() as sess:
             del sess['u']
 
-        err, path = (
-            (None, '/login') if creds_of(self.USER_NAME) is None
-            else ('Username already taken', '/sign-up'))
         do_test({
             'u': self.USER_NAME,
             'pw': self.PASSWD,
             'pwa': self.PASSWD,
-        }, err, loc=path)
+        }, None, loc='/login')
 
         do_test({
             'pw': self.PASSWD,

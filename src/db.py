@@ -16,17 +16,29 @@ from typing import (
 P = ParamSpec('P')
 Tc = TypeVar('Tc', covariant=True)
 
+PROJECT_ROOT = os.path.abspath(os.path.join(
+    __file__, os.pardir, os.pardir))
+DB_CFG: dict[Literal['path'], str | None] = {
+    'path': os.path.join(PROJECT_ROOT, 'app.db'),
+}
 storage = threading.local()
 
 
 def global_db() -> sqlite3.Connection:
     """
-    Thread-local singleton database connection
+    Thread-local singleton database connection.
     """
     if (db := getattr(storage, 'db', None)) is None:
-        setattr(storage, 'db', db := sqlite3.connect(os.path.abspath(os.path.join(
-                __file__, os.pardir, os.pardir, 'app.db'))))
+        path = DB_CFG['path']
+        if path is None:  # testing
+            db = sqlite3.connect(':memory:')
+            for sql in 'create.sql', 'insert.sql':
+                with open(os.path.join(PROJECT_ROOT, sql)) as f:
+                    db.executescript(f.read())
+        else:
+            db = sqlite3.connect(path)
         db.row_factory = sqlite3.Row
+        setattr(storage, 'db', db)
     return db
 
 
