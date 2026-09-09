@@ -1,9 +1,11 @@
-import flask
-import flask.testing
+"""Standard unittests for the entire web app."""
 import re
 import unittest
-
 from typing import Final
+
+import flask
+import flask.testing
+
 from src.routes import setup_flask
 from .utils import db_test
 
@@ -168,10 +170,12 @@ class TestFlaskApp(unittest.TestCase):
 
     def test_login(self) -> None:
         def do_test(path='/me', meth='post', q=True):
-            resp = getattr(self.clnt, meth)('/login?r=1' if q else '/login', data={
-                'u': 'Super Admin',
-                'pw': '12345678',
-            })
+            resp = getattr(self.clnt, meth)(
+                '/login?r=1' if q else '/login',
+                data={
+                    'u': 'Super Admin',
+                    'pw': '12345678',
+                })
             self.assertEqual(resp.status_code, 302)
             self.assertEqual(resp.location, path)
             self.assertIn('u', flask.session)
@@ -280,7 +284,15 @@ class TestFlaskApp(unittest.TestCase):
         }, 'Login incorrect')
 
     def test_sign_up(self) -> None:
-        def do_test(req: dict | None = None, err: str | None = None, meth='post', code=302, loc='/me', r=False, key='data'):
+        def do_test(
+            req: dict | None = None,
+            err: str | None = None,
+            meth='post',
+            code=302,
+            loc='/me',
+            r=False,
+            key='data',
+        ) -> None:
             # drain flashed messages
             self.assertLess(self.clnt.get('/sign-up').status_code, 400)
 

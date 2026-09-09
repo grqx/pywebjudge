@@ -1,3 +1,4 @@
+"""Standard unittests for the .db module."""
 import sqlite3
 import typing
 import unittest
@@ -68,7 +69,9 @@ class TestDatabase(unittest.TestCase):
         assert admin_creds is not None
         self.assertEqual(dict(admin_creds), {
             'user_id': 0,
-            'pw_hash': '$2b$12$Pk4KkAVRCM1zoVPQSSDanePfVR1baGyga.OMsXDefQNcOiYZUSkZ.',
+            'pw_hash': (
+                '$2b$12$Pk4KkAVRCM1zoVPQSSDanePfVR1baGyga.'
+                'OMsXDefQNcOiYZUSkZ.'),
             'privilege_lvl': 3,
         })
 
@@ -87,8 +90,9 @@ class TestDatabase(unittest.TestCase):
 
     def test_get_tags_joined(self) -> None:
         for p_id in range(1, 5):  # problems
-            tags = tuple(
-                map(lambda x: x['name'], get_tags_joined(p_id, cur=self.CURSOR)))
+            tags = tuple(map(
+                lambda x: x['name'],
+                get_tags_joined(p_id, cur=self.CURSOR)))
             self.assertGreater(len(tags), 0)
             for tag in tags:  # for each tag
                 self.assertIn(tag, ('Addition and subtraction',
@@ -105,7 +109,9 @@ class TestDatabase(unittest.TestCase):
         self.assertEqual(dict(info), {
             'id': 1,
             'title': 'A+B',
-            'desc': 'Calculate the sum of two integers, each less than 10000000, separated by a space.',
+            'desc': (
+                'Calculate the sum of two integers, '
+                'each less than 10000000, separated by a space.'),
             'cat_id': 1,
         })
 
