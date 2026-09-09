@@ -22,8 +22,7 @@ from typing import (
 P = ParamSpec('P')
 T_co = TypeVar('T_co', covariant=True)
 
-PROJECT_ROOT = os.path.abspath(os.path.join(
-    __file__, os.pardir, os.pardir))
+PROJECT_ROOT = os.path.abspath(os.path.join(__file__, os.pardir, os.pardir))
 DB_CFG: dict[Literal['path'], str | None] = {
     'path': os.path.join(PROJECT_ROOT, 'app.db'),
 }
@@ -32,10 +31,13 @@ storage = threading.local()
 
 def global_db() -> sqlite3.Connection:
     """Thread-local singleton database connection getter."""
+    # Use getattr to work around pyright's type check.
     if (db := getattr(storage, 'db', None)) is None:
         path = DB_CFG['path']
-        if path is None:  # testing
+        if path is None:  # For testing.
             db = sqlite3.connect(':memory:')
+            # We require that these files be present when running tests.
+            # Note that the order of them matters.
             for sql in 'create.sql', 'insert.sql':
                 with open(
                     os.path.join(PROJECT_ROOT, sql),
@@ -43,7 +45,9 @@ def global_db() -> sqlite3.Connection:
                 ) as f:
                     db.executescript(f.read())
         else:
+            # Normally, we just need to connect to the file on disk.
             db = sqlite3.connect(path)
+        # The other parts of this project relies on this.
         db.row_factory = sqlite3.Row
         setattr(storage, 'db', db)
     return db
@@ -53,9 +57,10 @@ def teardown():
     """Gracefully shuts down the database connection of the current
     thread.
     """
+    # Use getattr to work around pyright's type check.
     if (db := getattr(storage, 'db', None)) is not None:
         db.close()
-        # delete to avoid UAF
+        # Delete to avoid UAF.
         delattr(storage, 'db')
 
 
@@ -68,15 +73,19 @@ def get_cursor(cur: OptCursor = None):
     as the context manager is exited.
     """
     if cur is not None:
+        # If we already have a cursor, just yield it and return early.
         yield cur
         return
+    # Otherwise, get a new cursor.
     cur = global_db().cursor()
     try:
         yield cur
     finally:
+        # We want to close this no matter what exception occurs.
         cur.close()
 
 
+# This is always a list, though it could be empty sometimes.
 FetchManyRet = list[sqlite3.Row]
 FetchOneRet = sqlite3.Row | None
 # We don't return anything from insert statements
@@ -85,7 +94,7 @@ DBRet = FetchManyRet | FetchOneRet | None
 
 class Decorator(Protocol[T_co]):
     """Type hint support for the db_util decorator."""
-    @staticmethod  # make the type checker happy
+    @staticmethod  # Make the type checker happy.
     def __call__(cb: Callable[P, None], /) -> Callable[P, T_co]: ...
 
 
@@ -115,16 +124,19 @@ def db_util(
     def wrapper(_: Callable[P, None]) -> Callable[P, DBRet]:
         def inner(*a: P.args, **k: P.kwargs) -> DBRet:
             cur = cast(OptCursor, k.pop('cur', None))
+            # cur is popped so there shouldn't be anything left in k.
             if k:
                 raise TypeError(
                     'only "cur" is allowed in the db_util kwargs')
             with get_cursor(cur) as c:
                 res = c.execute(query, a)
                 if mode is None:
+                    # This is for insertion and update queries. In this
+                    # case, we need to commit the changes and return
+                    # nothing, as we don't depend on the inserted row.
                     c.connection.commit()
-                    # we don't return anything in this case
                     return None
-                # type cast to make the type checker happy
+                # Make the type checker happy.
                 return cast(
                     DBRet,
                     res.fetchall() if mode == 'all' else res.fetchone())
