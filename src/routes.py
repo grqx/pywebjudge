@@ -97,7 +97,7 @@ def json_api(fn: Callable[P, Any]) -> Callable[P, ResponseReturnValue]:
             if e.err_info is not None:
                 resp['error'] = e.err_info
             return jsonify(resp), e.code
-        except Exception:
+        except Exception:  # pylint: disable=broad-exception-caught
             return jsonify(FAILURE_JSON), 500
         return jsonify({'status': 'success', 'data': result}), 200
 
